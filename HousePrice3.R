@@ -1,0 +1,80 @@
+library(caTools)
+library(rms)
+require(randomForest)
+df0 = read.csv("./data/HPtrain.csv")
+df2 = read.csv("./data/HPtest.csv")
+str(df0)
+str(df2)
+r1 = nrow(df0)#1460
+r2 = nrow(df2)#1459
+c1 = df0[,c(1:80)]
+str(c1)
+df1 = rbind(c1,df2)
+str(df1)
+colSums(is.na(df1))
+df1$MSZoning[is.na(df1$MSZoning)] = names(table(df1$MSZoning)[1])
+df1$LotFrontage[is.na(df1$LotFrontage)] = median(df1$LotFrontage,na.rm = T)
+df1$Alley[is.na(df1$Alley)] = names(table(df1$Alley)[1])
+df1$Utilities[is.na(df1$Utilities)] = names(table(df1$Utilities)[1])
+df1$Exterior1st[is.na(df1$Exterior1st)] = names(table(df1$Exterior1st)[1])
+df1$Exterior2nd[is.na(df1$Exterior2nd)] = names(table(df1$Exterior2nd)[1])
+df1$MasVnrType[is.na(df1$MasVnrType)] = names(table(df1$MasVnrType)[1])
+df1$MasVnrArea[is.na(df1$MasVnrArea)] = median(df1$MasVnrArea,na.rm=T)
+df1$BsmtQual[is.na(df1$BsmtQual)] = names(table(df1$BsmtQual)[1])
+df1$BsmtCond[is.na(df1$BsmtCond)] = names(table(df1$BsmtCond)[1])
+df1$BsmtExposure[is.na(df1$BsmtExposure)] = names(table(df1$BsmtExposure)[1])
+df1$BsmtFinType1[is.na(df1$BsmtFinType1)] = names(table(df1$BsmtFinType1)[1])
+df1$BsmtFinType2[is.na(df1$BsmtFinType2)] = names(table(df1$BsmtFinType2)[1])
+df1$BsmtFinSF1[is.na(df1$BsmtFinSF1)] = median(df1$BsmtFinSF1,na.rm=T)
+df1$BsmtFinSF2[is.na(df1$BsmtFinSF2)] = median(df1$BsmtFinSF2,na.rm=T)
+df1$BsmtUnfSF[is.na(df1$BsmtUnfSF)] = median(df1$BsmtUnfSF,na.rm=T)
+df1$TotalBsmtSF[is.na(df1$TotalBsmtSF)] = median(df1$TotalBsmtSF,na.rm=T)
+df1$Electrical[is.na(df1$Electrical)] = names(table(df1$Electrical)[1])
+df1$BsmtHalfBath[is.na(df1$BsmtHalfBath)] = median(df1$BsmtHalfBath,na.rm=T)
+df1$BsmtFullBath[is.na(df1$BsmtFullBath)] = median(df1$BsmtFullBath,na.rm=T)
+df1$KitchenQual[is.na(df1$KitchenQual)] = names(table(df1$KitchenQual)[1])
+df1$Functional[is.na(df1$Functional)] = names(table(df1$Functional)[1])
+df1$FireplaceQu[is.na(df1$FireplaceQu)] = names(table(df1$FireplaceQu)[1])
+df1$GarageType[is.na(df1$GarageType)] = names(table(df1$GarageType)[1])
+df1$GarageYrBlt[is.na(df1$GarageYrBlt)] = median(df1$GarageYrBlt,na.rm=T)
+df1$GarageFinish[is.na(df1$GarageFinish)] = names(table(df1$GarageFinish)[1])
+df1$GarageCars[is.na(df1$GarageCars)] = median(df1$GarageCars,na.rm=T)
+df1$GarageArea[is.na(df1$GarageArea)] = median(df1$GarageArea,na.rm=T)
+df1$GarageQual[is.na(df1$GarageQual)] = names(table(df1$GarageQual)[1])
+df1$GarageCond[is.na(df1$GarageCond)] = names(table(df1$GarageCond)[1])
+df1$PoolQC[is.na(df1$PoolQC)] = names(table(df1$PoolQC)[1])
+df1$Fence[is.na(df1$Fence)] = names(table(df1$Fence)[1])
+df1$MiscFeature[is.na(df1$MiscFeature)] = names(table(df1$MiscFeature)[1])
+df1$SaleType[is.na(df1$SaleType)] = names(table(df1$SaleType)[1])
+colSums(is.na(df1))
+sum(is.na(df1))
+trn0 = df1[1:1460,]
+str(trn0)
+nrow(df1)
+tst0 = df1[1461:2919,]
+str(tst0)
+rm(df1)
+trn = cbind(trn0,df0$SalePrice)
+str(trn)
+trn$SalePrice = trn$`df0$SalePrice`
+str(trn)
+trn$`df0$SalePrice` = NULL
+sum(is.na(trn))
+m1 = randomForest(x=trn[,1:80],y=trn[,81],ntree = 1500)
+print(m1)
+pred = predict(m1,newdata=tst0)
+pred[1:5]
+str(df2)
+sub1 = data.frame(tst0$Id)
+str(sub1)
+sub1$Id = sub1$tst0.Id
+str(sub1)
+sub1$tst0.Id = NULL
+sub1$SalePrice = pred
+str(sub1)
+write.csv(sub1,file="HP3.csv",row.names = F)
+-----------------------------------------------------------------------------------
+print(importance(m1,type = 2))
+
+
+
